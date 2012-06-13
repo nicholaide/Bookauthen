@@ -1,0 +1,136 @@
+Notes:
+ON DEPOT B
+class Product < ActiveRecord::Base
+  # this attr_accessible seems new
+  attr_accessible :description, :image_url, :price, :title
+  validates :title, :description, :image_url, presence: true
+  # using 0.01 because database stores 0.001 as zero any
+  validates :price, numericality: {greater_than_or_equal_to: 0.01}
+  validates :title, uniqueness: true
+  validates :image_url, allow_blank: true, format: {
+	with: %r{\.(gif|jpg|png)$}i,
+	message: 'must be a URL for GIF, JPG or PNG image.'
+  }
+end
+
+ON DEPOT B
+unit tests output does not show which tests are run, unlike in the book 
+ON DEPOT B
+base name of the YAML file must match the name of database table
+
+DEPOT D
+changing the root on config/routes.rb; need to delete the defauly public/index.html
+
+root :to => 'store#index', as: 'store' (the latter tells Rails to create a store_path variable (we saw this with say_goodbye_path)
+
+ON DEPOT E:
+view-source:http://media.pragprog.com/titles/rails4/code/rails32/depot_e/app/views/layouts/application.html.erb
+
+application.html.erb is a layout used for all views for all controllers that don't otherwise provide a layout
+
+ON DEPOT E:
+CSS selector notation: if starts with a number sign (#) match on id attributes; if . (dot) match on class attributes, else elements name
+
+ON DEPOT E:
+
+one final point before we move on: both validation and functional tests will
+test the behavior of controllers only; they will not retroactively affect any
+objects that already exist in the database or in fixtures. In the previous example,
+two products contain the same title. Such data will cause no problems
+and will go undetected up to the point where such records are modified and
+saved.
+
+SCSS commments  /*added by me*/
+
+ON DEPOT F:
+if a table has foreign keys, the corresponding  model should have a belongs_to for each
+
+
+side note:
+
+new ebook uses the order in store, while the 3.0 version uses default_scope in products.rb
+class StoreController < ApplicationController
+  def index
+	@products = Product.order(:title)
+  end
+end
+
+class Product < ActiveRecord::Base
+default_scope :order => 'title'
+
+
+ON DEPOT g:
+error on line_items_controller_test.rb, see discussion on website (http://forums.pragprog.com/forums/148/topics/10565). This is due to mass assignment problem. also, update test is different in 
+generated script that on site, those in # are from site
+
+ON DEPOT g:
+
+line_items.find_by_product_id(product_id)
+
+But we don’t define a method with that name. However, Active Record notices the call to an undefined method and spots that it starts with the string find_by and ends with the name of a column.
+It then dynamically constructs a finder method for us, adding it to our class
+
+E2: handling errors
+deal with errors and error reporting, Rails uses structure called flash. Flash info is accessible within views
+Also, can't use instance var because we have now moved on to new requests. Flash is stored in session
+
+
+error logs are in development.log in the log directory
+
+
+PATH vs URL
+use URL for redirection
+
+ON F1:
+you can pass a collection to the method that renders partial templates
+
+ON DEPOT L:
+add remote: true for Ajax calls
+ error on book: $('#cart').html("<%= j(render(@cart)) %>"); NOT $('#cart').html("<%j render @cart %>");
+see http://stackoverflow.com/questions/10148134/rails-3-2-2-not-executing-rjs and http://api.rubyonrails.org/classes/ActionView/Helpers/JavaScriptHelper.html#method-i-escape_javascript
+
+ON DEPOT M:
+highlighting works, but there is an issue with border being highlighted as well. solution is 
+table { border-collapse:collapse } in application.css.scss
+
+ON DEPOT N:
+coffee script works, but mouse does not change like in links
+
+ON DEPOT O:
+bunch of fixes on occured while testing using rake:test, before the ajax testing. see git's commit with comment "before Task F Ajax test"
+
+ON before iteration G: not sure how all the Ajax works, need to pick up jQuery and CoffeeScript
+
+
+ON iteration G: did migration, no failure on rake:test. will change line_item model to have order_id as accessible
+
+aside: command for sqlite3 console is sqlite3 db/development.sqlite3 OR sqlite3 -line db/development.sqlite3
+. use .exit to quit
+
+ON DEPOT O own testing after adding form and css on order:
+changed order testing "should get new"  to  LineItem.create(cart_id: cart.id, product_id: products(:ruby).id)
+
+ON DEPOT Q bundle install will also cross-check gem dependcies. Need to restart server when doing this.
+
+
+ONE DEPOT Q running a script: rails runner script/load_orders.rb
+
+To try later: remove the \/ button when placing an order, else cart disappers. Not sure if Rails can detect which page you are on.
+
+ON DEPOT R: function testing email
+removed   <td><%= button_to 'V', decrement_line_item_path(line_item), method: :post, remote: true %></td> on _line_items.html.erb because test is complaining of some forgery
+also simplified the order_notifier_test to just "Ruby Programming Language"; removed text from shipped.text.rb
+
+ON DEPOT R: Iter I authentication
+ has_secure_password in model enables validation that the passwords typed match
+
+ON DEPOT R: form_tag = This style
+of form allows us to associate values in the params structure directly with form
+fields—no model object is required
+
+ON Iter K:
+problems with starting apache, no need for listen 80 or namevirtualhost on apache2.conf.some other config files must have defined it. also, i am able to bind to port 80. httpd does not seem to be a service anymore in apache2. in the future, check  sites-enabled in the /etc/apache2 folder. to restart apache2 to do this: sudo /etc/init.d/apache2 restart.
+needed to add RailsEnv development to the apache config
+had to change sites-enabled from 80 to 8080 to make site work
+
+
